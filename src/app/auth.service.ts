@@ -11,6 +11,10 @@ export class AuthService {
   private userSub= new Subject()
   constructor(private http:HttpClient) { }
 
+  private httpOptions = {
+    withCredentials: true
+  }
+
   getLoggedUser(){
     return this.userSub
   }
@@ -20,7 +24,10 @@ export class AuthService {
       email:email,
       password:password
     }
-    this.http.post(this.api+"signin", body).subscribe(
+
+    
+
+    this.http.post(this.api+"signin", body, this.httpOptions).subscribe(
       {
         next:(res)=>{
           console.log(res)
@@ -36,10 +43,10 @@ export class AuthService {
     )
   }
 
-  logout(){
-          this.loggedUser=null
-          this.userSub.next(this.loggedUser)
-  }
+  // logout(){
+  //         this.loggedUser=null
+  //         this.userSub.next(this.loggedUser)
+  // }
 
   signUp(email:string, password:string){
     let body ={
@@ -57,7 +64,7 @@ export class AuthService {
   getSecret(){
     if (this.loggedUser){
       let headers=new HttpHeaders({"Authorization":this.loggedUser?.accessToken||"probaToken"})
-      this.http.get(this.api+"secretdata", {headers}).subscribe(
+      this.http.get(this.api+"secretdata", this.httpOptions).subscribe(
         {
           next:(res)=>console.log(res),
           error:(err)=>console.log(err)
@@ -66,5 +73,26 @@ export class AuthService {
   }
   }
 
+  logout() {
+    this.http.post(this.api+"logout", this.httpOptions).subscribe(
+      {
+        next:(res)=>console.log(res),
+        error:(err)=>console.log(err)
+      }
+    )
+  }
+
+  // logout() {
+  //   this.http.post(this.api+"logout", this.httpOptions).subscribe(
+  //     {
+  //       next:(res)=>{
+  //         console.log(res)
+  //         this.loggedUser=null  
+  //         this.userSub.next(this.loggedUser)
+  //       },
+  //       error:(err)=>console.log(err)
+  //     }
+  //   )
+  // }
 
 }
